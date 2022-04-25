@@ -7,6 +7,7 @@ class AddUserController extends GetxController {
   final nipController = TextEditingController();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final jobController = TextEditingController();
   final passwordController = TextEditingController();
   final adminPasswordController = TextEditingController();
   RxBool isLoading = false.obs;
@@ -18,6 +19,7 @@ class AddUserController extends GetxController {
     if (nameController.text.isNotEmpty &&
         nipController.text.isNotEmpty &&
         emailController.text.isNotEmpty &&
+        jobController.text.isNotEmpty &&
         passwordController.text.isNotEmpty) {
       Get.defaultDialog(
         title: "Validasi admin",
@@ -118,6 +120,7 @@ class AddUserController extends GetxController {
         'nip': nipController.text,
         'name': nameController.text,
         'email': emailController.text,
+        'job': jobController.text,
         'uid': uid,
         'role': "user",
         'created_at': DateTime.now().toIso8601String(),

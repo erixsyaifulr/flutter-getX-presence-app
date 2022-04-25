@@ -44,6 +44,15 @@ class AddUserView extends GetView<AddUserController> {
           SizedBox(height: 20),
           TextField(
             autocorrect: false,
+            controller: controller.jobController,
+            decoration: InputDecoration(
+              labelText: 'Job',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 20),
+          TextField(
+            autocorrect: false,
             controller: controller.passwordController,
             decoration: InputDecoration(
               labelText: 'Password',
