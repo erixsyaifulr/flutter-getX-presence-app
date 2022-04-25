@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -46,6 +48,58 @@ class UpdateProfileView extends GetView<UpdateProfileController> {
               labelText: 'Name',
               border: OutlineInputBorder(),
             ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            "Profile Picture",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          SizedBox(height: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GetBuilder<UpdateProfileController>(builder: (c) {
+                if (c.image != null) {
+                  return Container(
+                    width: 150,
+                    height: 150,
+                    child: Image.file(
+                      File(c.image!.path),
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                } else {
+                  if (user["profile_photo"] != null) {
+                    return Column(
+                      children: [
+                        ClipOval(
+                          child: Image.network(
+                            user["profile_photo"],
+                            fit: BoxFit.cover,
+                            width: 150,
+                            height: 150,
+                          ),
+                        ),
+                        TextButton(
+                            onPressed: () =>
+                                controller.deleteProfile(user["uid"]),
+                            child: Text('Delete Profile Picture')),
+                      ],
+                    );
+                  } else {
+                    return Text("No Image Choosen");
+                  }
+                }
+              }),
+              TextButton(
+                  onPressed: () {
+                    controller.pickImage();
+                  },
+                  child: Text("Choose Image")),
+            ],
           ),
           SizedBox(height: 20),
           Obx(() => ElevatedButton(
