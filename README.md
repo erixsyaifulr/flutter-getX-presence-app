@@ -1,16 +1,24 @@
-# presence_app
+# Presence App
 
-A new Flutter project.
+A presence mobile app using getX and firebase.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project build with :
 
-A few resources to get you started if this is your first Flutter project:
+- Firebase Auth
+- Firebase Storage
+- FireStore
+- FlutterFire
+- GetX CLI
+- GetX State Management
+- Geolocator
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Feature
+- Login with Email and Password
+- Add user from admin 
+- Email Verification
+- Forgot Password
+- Change Password
+- Update Profile
+- ETC
