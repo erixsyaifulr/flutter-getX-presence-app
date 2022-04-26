@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 
 import 'package:presence_app/app/modules/add_user/bindings/add_user_binding.dart';
 import 'package:presence_app/app/modules/add_user/views/add_user_view.dart';
+import 'package:presence_app/app/modules/all_presence/bindings/all_presence_binding.dart';
+import 'package:presence_app/app/modules/all_presence/views/all_presence_view.dart';
+import 'package:presence_app/app/modules/detail_presence/bindings/detail_presence_binding.dart';
+import 'package:presence_app/app/modules/detail_presence/views/detail_presence_view.dart';
 import 'package:presence_app/app/modules/forgot_password/bindings/forgot_password_binding.dart';
 import 'package:presence_app/app/modules/forgot_password/views/forgot_password_view.dart';
 import 'package:presence_app/app/modules/home/bindings/home_binding.dart';
@@ -64,6 +68,16 @@ class AppPages {
       name: _Paths.UPDATE_PASSWORD,
       page: () => UpdatePasswordView(),
       binding: UpdatePasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_PRESENCE,
+      page: () => DetailPresenceView(),
+      binding: DetailPresenceBinding(),
+    ),
+    GetPage(
+      name: _Paths.ALL_PRESENCE,
+      page: () => AllPresenceView(),
+      binding: AllPresenceBinding(),
     ),
   ];
 }
