@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:presence_app/app/controllers/page_index_controller.dart';
@@ -14,18 +14,12 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     PreferredSizeWidget appBar() {
       return AppBar(
-        title: Text('HomeView'),
+        title: Text('Home'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () => Get.toNamed(Routes.PROFILE),
-          ),
-        ],
       );
     }
 
-    Widget profilePhoto() {
+    Widget profilePhoto(Map<String, dynamic> data) {
       return Row(
         children: [
           ClipOval(
@@ -33,7 +27,11 @@ class HomeView extends GetView<HomeController> {
               width: 75,
               height: 75,
               color: Colors.grey[200],
-              // child: Image.network(src),
+              child: Image.network(
+                data["profile_photo"] ??
+                    "https://ui-avatars.com/api/?background=random&name=${data['name']}",
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           SizedBox(width: 20),
@@ -45,14 +43,17 @@ class HomeView extends GetView<HomeController> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               SizedBox(height: 5),
-              Text("Jl Beringin III"),
+              Container(
+                width: 250,
+                child: Text(data['address'] ?? "Lokasi belum terdeteksi"),
+              ),
             ],
           )
         ],
       );
     }
 
-    Widget profileInformation() {
+    Widget profileInformation(Map<String, dynamic> data) {
       return Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -63,7 +64,7 @@ class HomeView extends GetView<HomeController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Developer",
+              "${data['job']}",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -71,7 +72,7 @@ class HomeView extends GetView<HomeController> {
             ),
             SizedBox(height: 10),
             Text(
-              "161051050",
+              "${data['nip']}",
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -79,7 +80,7 @@ class HomeView extends GetView<HomeController> {
             ),
             SizedBox(height: 10),
             Text(
-              "Erix Syaiful Rohman",
+              "${data['name']}",
               style: TextStyle(
                 fontSize: 18,
               ),
@@ -89,7 +90,7 @@ class HomeView extends GetView<HomeController> {
       );
     }
 
-    Widget presenceInformation() {
+    Widget presenceInformation(Map<String, dynamic> data) {
       return Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -129,7 +130,9 @@ class HomeView extends GetView<HomeController> {
         children: [
           Text("Last 5 Days"),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.toNamed(Routes.ALL_PRESENCE);
+            },
             child: Text("See More"),
           ),
         ],
@@ -137,61 +140,112 @@ class HomeView extends GetView<HomeController> {
     }
 
     Widget presenceHistory() {
-      return ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Masuk"),
-                    Text("${DateFormat.yMMMEd().format(DateTime.now())}"),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Text("${DateFormat.Hms().format(DateTime.now())}"),
-                SizedBox(height: 10),
-                Text("Keluar"),
-                SizedBox(height: 5),
-                Text("${DateFormat.Hms().format(DateTime.now())}"),
-              ],
-            ),
-          );
-        },
-      );
+      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: controller.streamLastPresence(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Text("Presence history not found"),
+              );
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                Map<String, dynamic> data =
+                    snapshot.data!.docs.reversed.toList()[index].data();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: Material(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(20),
+                    child: InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.DETAIL_PRESENCE);
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Check In"),
+                                Text(
+                                    "${DateFormat.yMMMEd().format(DateTime.parse(data["date"]))}"),
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                                "${data["check-in"]?["date"] == null ? "-" : DateFormat.Hms().format(
+                                    DateTime.parse(data["check-in"]!["date"]),
+                                  )}"),
+                            SizedBox(height: 10),
+                            Text("Check Out"),
+                            SizedBox(height: 5),
+                            Text(
+                                "${data["check-out"]?["date"] == null ? "-" : DateFormat.Hms().format(
+                                    DateTime.parse(data["check-out"]!["date"]),
+                                  )}"),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          });
     }
 
     Widget body() {
-      return ListView(
-        padding: EdgeInsets.all(20),
-        children: [
-          profilePhoto(),
-          SizedBox(height: 20),
-          profileInformation(),
-          SizedBox(height: 20),
-          presenceInformation(),
-          SizedBox(height: 20),
-          Divider(
-            color: Colors.grey[300],
-            thickness: 2,
-          ),
-          SizedBox(height: 20),
-          presenceHistoryLabel(),
-          SizedBox(height: 20),
-          presenceHistory(),
-        ],
-      );
+      return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: controller.streamRole(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (snapshot.hasData) {
+              Map<String, dynamic> user = snapshot.data!.data()!;
+              return ListView(
+                padding: EdgeInsets.all(20),
+                children: [
+                  profilePhoto(user),
+                  SizedBox(height: 20),
+                  profileInformation(user),
+                  SizedBox(height: 20),
+                  presenceInformation(user),
+                  SizedBox(height: 20),
+                  Divider(
+                    color: Colors.grey[300],
+                    thickness: 2,
+                  ),
+                  SizedBox(height: 20),
+                  presenceHistoryLabel(),
+                  SizedBox(height: 20),
+                  presenceHistory(),
+                ],
+              );
+            } else {
+              return Center(
+                child: Text("No Data"),
+              );
+            }
+          });
     }
 
     Widget bottomNavigationBar() {
