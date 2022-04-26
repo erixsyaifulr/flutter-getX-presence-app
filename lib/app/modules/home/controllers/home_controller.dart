@@ -18,16 +18,14 @@ class HomeController extends GetxController {
     yield* firestore.collection("users").doc(uid).snapshots();
   }
 
-  @override
-  void onInit() {
-    super.onInit();
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamLastPresence() async* {
+    String uid = auth.currentUser!.uid;
+    yield* firestore
+        .collection("users")
+        .doc(uid)
+        .collection("presences")
+        .orderBy("date")
+        .limitToLast(5)
+        .snapshots();
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {}
 }
