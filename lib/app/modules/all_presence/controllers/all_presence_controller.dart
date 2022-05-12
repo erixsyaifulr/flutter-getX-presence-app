@@ -1,20 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class AllPresenceController extends GetxController {
-  //TODO: Implement AllPresenceController
+  FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  DateTime? startDate;
+  DateTime endDate = DateTime.now();
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
+  Future<QuerySnapshot<Map<String, dynamic>>> streamAllPresence() async {
+    String uid = auth.currentUser!.uid;
+
+    if (startDate == null) {
+      return await firestore
+          .collection("users")
+          .doc(uid)
+          .collection("presences")
+          .where("date", isLessThanOrEqualTo: endDate.toIso8601String())
+          .orderBy("date")
+          .get();
+    }
+
+    return await firestore
+        .collection("users")
+        .doc(uid)
+        .collection("presences")
+        .where("date",
+            isGreaterThanOrEqualTo: startDate!.toIso8601String(),
+            isLessThanOrEqualTo:
+                endDate.add(Duration(days: 1)).toIso8601String())
+        .orderBy("date")
+        .get();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void pickDate(DateTime start, DateTime end) {
+    startDate = start;
+    endDate = end;
+    update();
   }
-
-  @override
-  void onClose() {}
-  void increment() => count.value++;
 }
