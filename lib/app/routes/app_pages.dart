@@ -10,6 +10,8 @@ import 'package:presence_app/app/modules/forgot_password/bindings/forgot_passwor
 import 'package:presence_app/app/modules/forgot_password/views/forgot_password_view.dart';
 import 'package:presence_app/app/modules/home/bindings/home_binding.dart';
 import 'package:presence_app/app/modules/home/views/home_view.dart';
+import 'package:presence_app/app/modules/leave/bindings/leave_binding.dart';
+import 'package:presence_app/app/modules/leave/views/leave_view.dart';
 import 'package:presence_app/app/modules/login/bindings/login_binding.dart';
 import 'package:presence_app/app/modules/login/views/login_view.dart';
 import 'package:presence_app/app/modules/new_password/bindings/new_password_binding.dart';
@@ -78,6 +80,11 @@ class AppPages {
       name: _Paths.ALL_PRESENCE,
       page: () => AllPresenceView(),
       binding: AllPresenceBinding(),
+    ),
+    GetPage(
+      name: _Paths.LEAVE,
+      page: () => LeaveView(),
+      binding: LeaveBinding(),
     ),
   ];
 }
