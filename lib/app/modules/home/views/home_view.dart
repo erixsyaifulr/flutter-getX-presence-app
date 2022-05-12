@@ -97,29 +97,44 @@ class HomeView extends GetView<HomeController> {
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
+        child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: controller.streamTodayPresence(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            Map<String, dynamic>? dataToday = snapshot.data?.data();
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text("Masuk"),
-                SizedBox(height: 5),
-                Text("-"),
+                Column(
+                  children: [
+                    Text("Masuk"),
+                    SizedBox(height: 5),
+                    Text(dataToday?["check-in"] == null
+                        ? "-"
+                        : "${DateFormat.jms().format(DateTime.parse(dataToday!['check-in']['date']))}"),
+                  ],
+                ),
+                Container(
+                  height: 30,
+                  width: 2,
+                  color: Colors.grey,
+                ),
+                Column(
+                  children: [
+                    Text("Keluar"),
+                    SizedBox(height: 5),
+                    Text(dataToday?["check-out"] == null
+                        ? "-"
+                        : "${DateFormat.jms().format(DateTime.parse(dataToday!['check-out']['date']))}"),
+                  ],
+                ),
               ],
-            ),
-            Container(
-              height: 30,
-              width: 2,
-              color: Colors.grey,
-            ),
-            Column(
-              children: [
-                Text("Keluar"),
-                SizedBox(height: 5),
-                Text("-"),
-              ],
-            ),
-          ],
+            );
+          },
         ),
       );
     }
@@ -167,7 +182,7 @@ class HomeView extends GetView<HomeController> {
                     borderRadius: BorderRadius.circular(20),
                     child: InkWell(
                       onTap: () {
-                        Get.toNamed(Routes.DETAIL_PRESENCE);
+                        Get.toNamed(Routes.DETAIL_PRESENCE, arguments: data);
                       },
                       borderRadius: BorderRadius.circular(20),
                       child: Container(

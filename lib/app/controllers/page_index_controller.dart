@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -41,7 +42,7 @@ class PageIndexController extends GetxController {
           -7.493041, 110.227166, position.latitude, position.longitude);
 
       await savePresence(position, address, distance);
-      Get.snackbar(response["message"], address);
+      // Get.snackbar(response["message"], address);
     } else {
       Get.snackbar("Error", response["message"]);
     }
@@ -59,17 +60,30 @@ class PageIndexController extends GetxController {
 
     //presence collection isEmpty
     if (data.docs.isEmpty) {
-      await presenceCollection.doc(today).set({
-        "date": DateTime.now().toIso8601String(),
-        "check-in": {
-          "date": DateTime.now().toIso8601String(),
-          "latitude": position.latitude,
-          "longitude": position.longitude,
-          "address": address,
-          "status": status,
-          "distance": distance,
-        }
-      });
+      await Get.defaultDialog(
+        title: "Validasi Presensi",
+        middleText: "Apakah anda ingin presensi Masuk ?",
+        actions: [
+          OutlinedButton(child: Text("Tidak"), onPressed: () => Get.back()),
+          ElevatedButton(
+              child: Text("Ya"),
+              onPressed: () async {
+                await presenceCollection.doc(today).set({
+                  "date": DateTime.now().toIso8601String(),
+                  "check-in": {
+                    "date": DateTime.now().toIso8601String(),
+                    "latitude": position.latitude,
+                    "longitude": position.longitude,
+                    "address": address,
+                    "status": status,
+                    "distance": distance,
+                  }
+                });
+                Get.back();
+                Get.snackbar("Success", address);
+              }),
+        ],
+      );
     } else {
       //presence collection is not empty
       DocumentSnapshot<Map<String, dynamic>> todayPresenceData =
@@ -82,30 +96,56 @@ class PageIndexController extends GetxController {
           Get.snackbar("Succes", "You have already checked out");
         } else {
           // checkout only
-          await presenceCollection.doc(today).update({
-            "check-out": {
-              "date": DateTime.now().toIso8601String(),
-              "latitude": position.latitude,
-              "longitude": position.longitude,
-              "address": address,
-              "status": status,
-              "distance": distance,
-            }
-          });
+          await Get.defaultDialog(
+            title: "Validate Presence",
+            middleText: "Do you have to presence Out ?",
+            actions: [
+              OutlinedButton(child: Text("Tidak"), onPressed: () => Get.back()),
+              ElevatedButton(
+                  child: Text("Ya"),
+                  onPressed: () async {
+                    await presenceCollection.doc(today).update({
+                      "check-out": {
+                        "date": DateTime.now().toIso8601String(),
+                        "latitude": position.latitude,
+                        "longitude": position.longitude,
+                        "address": address,
+                        "status": status,
+                        "distance": distance,
+                      }
+                    });
+                    Get.back();
+                    Get.snackbar("Success", address);
+                  }),
+            ],
+          );
         }
       } else {
         //presence data today is empty
-        await presenceCollection.doc(today).set({
-          "date": DateTime.now().toIso8601String(),
-          "check-in": {
-            "date": DateTime.now().toIso8601String(),
-            "latitude": position.latitude,
-            "longitude": position.longitude,
-            "address": address,
-            "status": status,
-            "distance": distance,
-          }
-        });
+        await Get.defaultDialog(
+          title: "Validate Presence",
+          middleText: "Do you have to presence in ?",
+          actions: [
+            OutlinedButton(child: Text("Tidak"), onPressed: () => Get.back()),
+            ElevatedButton(
+                child: Text("Ya"),
+                onPressed: () async {
+                  await presenceCollection.doc(today).set({
+                    "date": DateTime.now().toIso8601String(),
+                    "check-in": {
+                      "date": DateTime.now().toIso8601String(),
+                      "latitude": position.latitude,
+                      "longitude": position.longitude,
+                      "address": address,
+                      "status": status,
+                      "distance": distance,
+                    }
+                  });
+                  Get.back();
+                  Get.snackbar("Success", address);
+                }),
+          ],
+        );
       }
     }
   }
