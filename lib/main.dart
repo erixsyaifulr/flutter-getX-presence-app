@@ -25,7 +25,7 @@ Future<void> main() async {
           );
         }
         return GetMaterialApp(
-          title: "Application",
+          debugShowCheckedModeBanner: false,
           initialRoute: snapshot.data != null ? Routes.HOME : Routes.LOGIN,
           getPages: AppPages.routes,
         );
